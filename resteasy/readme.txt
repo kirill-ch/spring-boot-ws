@@ -1,1 +1,1 @@
-Learning projects with Spring Boot and RESTEasy framework.
+Learning project with Spring Boot and RESTEasy framework.
