@@ -1,0 +1,1 @@
+Learning project with Spring Boot and RESTEasy Client. API Integration Tests.
