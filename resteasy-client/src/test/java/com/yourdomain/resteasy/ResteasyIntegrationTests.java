@@ -3,6 +3,7 @@ package com.yourdomain.resteasy;
 import com.yourdomain.resteasy.client.UserResourceV1;
 import com.yourdomain.resteasy.entities.OurUser;
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,129 +17,134 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class ResteasyIntegrationTests {
 
-    @Autowired
-    private UserResourceV1 userResourceV1;
+	@Autowired
+	private UserResourceV1 userResourceV1;
 
-    @Test
-    public void shouldInsertUser() {
+	@Before
+	public void setUp() {//удалять всех пользователей перед каждым тестом, чтобы данные не мешали другим тестам
+		userResourceV1.deleteAllUsers();
+	}
 
-        OurUser user = new OurUser();
-        user.setId(1000);
-        user.setName("Anna");
-        user.setEmail("anna@gmail.com");
+	@Test
+	public void shouldInsertUser() {
 
-        OurUser userSaved = userResourceV1.insertUser(user);
+		OurUser user = new OurUser();
+		user.setId(1000);
+		user.setName("Anna");
+		user.setEmail("anna@gmail.com");
 
-        Assertions.assertThat(userSaved).isEqualToComparingFieldByField(user);
+		OurUser userSaved = userResourceV1.insertUser(user);
 
-        userResourceV1.deleteAllUsers();
+		Assertions.assertThat(userSaved).isEqualToComparingFieldByField(user);
 
-    }
+		//        userResourceV1.deleteAllUsers();
 
-    //test proper validation of User Email
-    @Test
-    public void shouldThrowExceptionByInsertUserEmail() {
+	}
 
-        OurUser user = new OurUser();
-        user.setId(1000);
-        user.setName("Anna");
-        user.setEmail("annagmail.com");
+	//test proper validation of User Email
+	@Test
+	public void shouldThrowExceptionByInsertUserEmail() {
 
-        Assertions.assertThatThrownBy(() -> userResourceV1.insertUser(user)).isInstanceOf(BadRequestException.class);
+		OurUser user = new OurUser();
+		user.setId(1000);
+		user.setName("Anna");
+		user.setEmail("annagmail.com");
 
-    }
+		Assertions.assertThatThrownBy(() -> userResourceV1.insertUser(user)).isInstanceOf(BadRequestException.class);
 
-    //test proper validation of User Id
-    @Test
-    public void shouldThrowExceptionByInsertUserId() {
+	}
 
-        OurUser user = new OurUser();
-        user.setId(10);
-        user.setName("Anna");
-        user.setEmail("anna@gmail.com");
+	//test proper validation of User Id
+	@Test
+	public void shouldThrowExceptionByInsertUserId() {
 
-        Assertions.assertThatThrownBy(() -> userResourceV1.insertUser(user)).isInstanceOf(BadRequestException.class);
+		OurUser user = new OurUser();
+		user.setId(10);
+		user.setName("Anna");
+		user.setEmail("anna@gmail.com");
 
-    }
+		Assertions.assertThatThrownBy(() -> userResourceV1.insertUser(user)).isInstanceOf(BadRequestException.class);
 
-    @Test
-    public void shouldGetAllUsers() {
+	}
 
-        OurUser user = new OurUser();
-        user.setId(100);
-        user.setName("Anna");
-        user.setEmail("anna@gmail.com");
+	@Test
+	public void shouldGetAllUsers() {
 
-        userResourceV1.insertUser(user);
+		OurUser user = new OurUser();
+		user.setId(100);
+		user.setName("Anna");
+		user.setEmail("anna@gmail.com");
 
-        List<OurUser> users = userResourceV1.getUsers();
+		userResourceV1.insertUser(user);
 
-        Assertions.assertThat(users).hasSize(1);
-        Assertions.assertThat(users.get(0).getId()).isEqualTo(100);
-        Assertions.assertThat(users.get(0).getName()).isEqualTo("Anna");
-        Assertions.assertThat(users.get(0).getEmail()).isEqualTo("anna@gmail.com");
+		List<OurUser> users = userResourceV1.getUsers();
 
-        OurUser user2 = new OurUser();
-        user2.setId(100);
-        user2.setName("Anna");
+		Assertions.assertThat(users).hasSize(1);
+		Assertions.assertThat(users.get(0).getId()).isEqualTo(100);
+		Assertions.assertThat(users.get(0).getName()).isEqualTo("Anna");
+		Assertions.assertThat(users.get(0).getEmail()).isEqualTo("anna@gmail.com");
 
-        Assertions.assertThat(users.get(0)).isEqualToIgnoringGivenFields(user2, "email");
+		OurUser user2 = new OurUser();
+		user2.setId(100);
+		user2.setName("Anna");
 
-        Assertions.assertThat(users.get(0).getId()).isNotNull();
-        Assertions.assertThat(users.get(0).getId()).isInstanceOf(Integer.class);
+		Assertions.assertThat(users.get(0)).isEqualToIgnoringGivenFields(user2, "email");
 
-        userResourceV1.deleteAllUsers();
+		Assertions.assertThat(users.get(0).getId()).isNotNull();
+		Assertions.assertThat(users.get(0).getId()).isInstanceOf(Integer.class);
 
-    }
+		//        userResourceV1.deleteAllUsers();
 
-    @Test
-    public void shouldGetUser() {
+	}
 
-        int id = 100;
+	@Test
+	public void shouldGetUser() {
 
-        OurUser user = new OurUser();
-        user.setId(id);
+		int id = 100;
 
-        OurUser user1 = userResourceV1.getUser(id);
-        Assertions.assertThat(user1).isEqualToComparingFieldByField(user);
-    }
+		OurUser user = new OurUser();
+		user.setId(id);
 
-    @Test
-    public void shouldInsertAndExtract(){
+		OurUser user1 = userResourceV1.getUser(id);
+		Assertions.assertThat(user1).isEqualToComparingFieldByField(user);
+	}
 
-        OurUser user1 = new OurUser();
-        user1.setId(100);
-        user1.setName("Olga");
+	@Test
+	public void shouldInsertAndExtract() {
 
-        OurUser user2 = new OurUser();
-        user2.setId(1000);
-        user2.setName("Andrey");
+		OurUser user1 = new OurUser();
+		user1.setId(100);
+		user1.setName("Olga");
 
-        userResourceV1.insertUser(user1);
-        userResourceV1.insertUser(user2);
+		OurUser user2 = new OurUser();
+		user2.setId(1000);
+		user2.setName("Andrey");
 
-        List<OurUser> users = userResourceV1.getUsers();
+		userResourceV1.insertUser(user1);
+		userResourceV1.insertUser(user2);
 
-        Assertions.assertThat(users).extracting("id").contains(user1.getId());
-        Assertions.assertThat(users).extracting("id").contains(user2.getId());
+		List<OurUser> users = userResourceV1.getUsers();
 
-        userResourceV1.deleteAllUsers();
+		Assertions.assertThat(users).extracting("id").contains(user1.getId());
+		Assertions.assertThat(users).extracting("id").contains(user2.getId());
 
-    }
+		//        userResourceV1.deleteAllUsers();
 
-    @Test
-    public void shouldDeleteAllUsers(){
-        OurUser user1 = new OurUser();
-        user1.setId(100);
-        user1.setName("Olga");
+	}
 
-        userResourceV1.insertUser(user1);
+	@Test
+	public void shouldDeleteAllUsers() {
+		OurUser user1 = new OurUser();
+		user1.setId(100);
+		user1.setName("Olga");
 
-        userResourceV1.deleteAllUsers();
+		userResourceV1.insertUser(user1);
 
-        List<OurUser> users = userResourceV1.getUsers();
+		userResourceV1.deleteAllUsers();
 
-        Assertions.assertThat(users).hasSize(0);
-    }
+		List<OurUser> users = userResourceV1.getUsers();
+
+		Assertions.assertThat(users).hasSize(0);
+	}
 
 }
